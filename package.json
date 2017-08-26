@@ -1,0 +1,16 @@
+{
+  "name": "exam-practice-app",
+  "version": "1.0.0",
+  "description": "practice exam. Makes reviewer into exam.",
+  "main": "app.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "practice",
+    "exam",
+    "reviewer"
+  ],
+  "author": "Neimark Junsay Braga",
+  "license": "ISC"
+}

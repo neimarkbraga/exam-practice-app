@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Exam Practice App</title>
+        <link rel="stylesheet" type="text/css" href="assets/bootstrap/dist/css/bootstrap.min.css" />
+        <script type="application/javascript" src="assets/angular/angular.min.js"></script>
+        <script type="application/javascript" src="assets/ngstorage/ngStorage.min.js"></script>
+        <script type="application/javascript" src="assets/jquery/dist/jquery.min.js"></script>
+        <script type="application/javascript" src="assets/popper/dist/umd/popper.min.js"></script>
+        <script type="application/javascript" src="assets/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="application/javascript" src="assets/bootstrap-dialogs-neimark/dist/bootstrap-dialogs-neimark.min.js"></script>
+        <style>
+            html, body {  min-height: 100vh;  }
+            main{  flex: 1;  }
+        </style>
+    </head>
+    <body class="d-flex flex-column" ng-app="ExamPracticeApp">
+        <header class="container pt-3 text-right">
+            <h1><a href="app.html">Exam Practice App</a></h1>
+            <p>By Neimark Junsay Braga</p>
+            <hr />
+        </header>
+        <main>
+            <div class="container" ng-controller="pageCtrl as page">
+                <div ng-show="page.currentPage == 'dashboard'" ng-controller="dashboardCtrl as dashboard">
+                    <h2>Dashboard</h2>
+                    <div class="list-group">
+                        <a href="#dictionaries" class="list-group-item list-group-item-action">Dictionary</a>
+                        <a href="#settings" ng-click="page.show('settings')" class="list-group-item list-group-item-action">Settings</a>
+                    </div>
+                </div>
+                <div ng-show="page.currentPage == 'dictionaries'" ng-controller="dictionaryCtrl as dictionaries">
+                    <h2>Dictionaries</h2>
+                    <div ng-show="dictionaries.library.length > 0" class="text-right pb-3">
+                        <a href="#" ng-click="dictionaries.exportData();" id="dictionaries-export-button" class="btn btn-sm btn-outline-primary">Export Data</a>
+                    </div>
+                    <p ng-hide="dictionaries.library.length > 0" class="text-center">You have no dictionary yet. Click "Add New Directory" or <button type="button" class="btn btn-sm btn-outline-dark">Import Data</button></p>
+                    <div ng-show="dictionaries.library.length > 0" id="dictionary-accordion" role="tablist">
+                        <div class="card" ng-repeat="dictionary in dictionaries.library track by $index">
+                            <div class="card-header" role="tab" id="dictionary-heading-{{$index}}">
+                                <h5 class="mb-0 d-flex">
+                                    <a data-toggle="collapse" href="#dictionary-collapse-{{$index}}" aria-controls="dictionary-collapse-{{$index}}">
+                                        {{dictionary.name}}
+                                    </a>
+                                    <div style="flex: 1;" class="text-right">
+                                        <button type="button" class="btn btn-success mb-2">Exam Practice</button>
+                                        <button type="button" ng-click="dictionaries.rename($index)" class="btn btn-info mb-2">Rename</button>
+                                        <button type="button" ng-click="dictionaries.remove($index)" class="btn btn-danger mb-2">Delete</button>
+                                    </div>
+                                </h5>
+                            </div>
+
+                            <div id="dictionary-collapse-{{$index}}" class="collapse" role="tabpanel" aria-labelledby="dictionary-heading-{{$index}}" data-parent="#dictionary-accordion">
+                                <div class="card-body">
+                                    <p ng-hide="dictionary.value.length > 0" class="text-center">There are no dictionary items for <b>{{dictionary.name}}</b> yet.</p>
+                                    <div ng-show="dictionary.value.length > 0">
+
+                                    </div>
+                                    <hr />
+
+                                    <!--
+                                    <div class="text-center">
+                                        <button ng-click="dictionaries.manageItems(index)" type="button" class="btn btn-sm btn-primary">Manage Dictionary Items for <b>{{dictionary.name}}</b></button> or
+                                        <button type="button" ng-click="" class="btn btn-secondary btn-sm">Import</button>
+                                    </div>
+                                    -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3"></div>
+                    <div class="text-center">
+                        <button ng-click="dictionaries.add();" type="button" class="btn btn-primary">Add New Dictionary</button>
+                    </div>
+                </div>
+                <div ng-show="page.currentPage == 'settings'" ng-controller="settingsCtrl as settings">
+                    <h2>Settings</h2>
+
+                </div>
+            </div>
+        </main>
+        <footer class="container pb-2 pt-2">
+            &copy; 2017 Exam Reviewer
+        </footer>
+        <script>
+            var Dialog = new BootstrapDialog({
+                buttonClass: 'btn-primary',
+                dialogSize: 'modal-lg'
+            });
+            angular.module('ExamPracticeApp', ['ngStorage'])
+                .controller('pageCtrl', function ($scope, $window) {
+                    var page = this;
+                    $window.addEventListener('hashchange', function () {
+                        $scope.$apply(function () {
+                            page.currentPage = angular.copy(location.hash.replace('#',''));
+                        })
+                    });
+                    if(location.hash.trim() == '') location.hash = 'dashboard';
+                    else page.currentPage = angular.copy(location.hash.replace('#',''));
+                })
+                .controller('dashboardCtrl', function () {
+                    var dashboard = this;
+                })
+                .controller('dictionaryCtrl', function ($scope, appStorage) {
+                    var dictionaries = this;
+                    dictionaries.library = appStorage.dictionary();
+                    dictionaries.add = function () {
+                        Dialog.prompt('New Dictionary', 'Enter the name of your new dictionary', function (newName) {
+                            $scope.$apply(function () {
+                                if(newName != undefined){
+                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'Dictionary name cannot be whitespace or empty.');
+                                    else {
+                                        var valid = true;
+                                        for(var i = 0; i < (dictionaries.library).length; i++)
+                                            if(dictionaries.library[i].name == newName)
+                                                valid = false;
+                                        if(!valid) Dialog.alert('Dictionary Name Exists', 'Dictionary <b>' + newName + '</b> is already on the list.');
+                                        else {
+                                            dictionaries.library.push({
+                                                name: newName,
+                                                value: []
+                                            });
+                                            dictionaries.library = appStorage.dictionary(dictionaries.library);
+                                        }
+                                    }
+                                }
+                            });
+                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', required: false});
+                    };
+                    dictionaries.rename = function (index) {
+                        var oldDictionary = dictionaries.library[index];
+                        Dialog.prompt('Rename Dictionary', 'Rename dictionary <b>' + oldDictionary.name + '</b> to?', function (newName) {
+                            $scope.$apply(function () {
+                                if(newName != undefined){
+                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'Dictionary name cannot be whitespace or empty.');
+                                    else {
+                                        var valid = true;
+                                        for(var i = 0; i < (dictionaries.library).length; i++)
+                                            if((dictionaries.library[i].name == newName) && (i != index))
+                                                valid = false;
+                                        if(!valid) Dialog.alert('Dictionary Name Exists', 'Cannot rename <b>' + oldDictionary.name + '</b> to <b>' + newName + '</b>. Dictionary <b>' + newName + '</b> is already on the list.');
+                                        else {
+                                            dictionaries.library[index].name = newName;
+                                            dictionaries.library = appStorage.dictionary(dictionaries.library);
+                                        }
+                                    }
+                                }
+                            });
+                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', value: oldDictionary.name, required: false});
+                    };
+                    dictionaries.remove = function (index) {
+                        var oldDictionary = dictionaries.library[index];
+                        Dialog.confirm('Delete Dictionary', 'Do you want to delete dictionary <b>' + oldDictionary.name + '</b>?', function (result) {
+                            $scope.$apply(function () {
+                                if(result){
+                                    dictionaries.library.splice(index, 1);
+                                    dictionaries.library = appStorage.dictionary(dictionaries.library);
+                                }
+                            });
+                        });
+                    };
+                    dictionaries.exportData = function () {
+                        var dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dictionaries.library));
+                        $('#dictionaries-export-button')
+                            .attr('href',dataString)
+                            .attr('download','exam-practice-export-' + (new Date().getTime()) + '.json');
+                    };
+                })
+                .controller('settingsCtrl', function (appStorage) {
+                    var settings = this;
+                    settings.value = appStorage.settings();
+                })
+                .factory('appStorage', function ($localStorage) {
+                    return {
+                        dictionary: function (value) {
+                            if(value)$localStorage.dictionaries = JSON.stringify(value);
+                            else if(!$localStorage.dictionaries) $localStorage.dictionaries = JSON.stringify([]);
+                            return JSON.parse($localStorage.dictionaries);
+                        },
+                        settings: function (value) {
+                            if(value)  $localStorage.settings = JSON.stringify(value);
+                            else if(!$localStorage.settings) $localStorage.settings = JSON.stringify([]);
+                            return JSON.parse($localStorage.settings);
+                        }
+                    };
+                });
+
+        </script>
+    </body>
+</html>
