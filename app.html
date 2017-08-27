@@ -342,11 +342,139 @@
                 .controller('examCtrl', function ($scope, $route, appStorage, $location) {
                     let exam = this;
                     exam.prepareQuestions = function () {
-                        alert('!');
+                        let shuffleArray = function(array) {
+                            let m = array.length, t, i;
+                            while (m) {
+                                i = Math.floor(Math.random() * m--);
+                                t = array[m];
+                                array[m] = array[i];
+                                array[i] = t;
+                            }
+                            return array;
+                        };
+                        let randomNumber = function (max, min, exception) {
+                            if(!exception) exception = [];
+                            let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                            return (exception.indexOf(num) > -1)? randomNumber(min, max, exception) : num;
+                        };
+                        let incrementChar = function (c) {
+                            return String.fromCharCode(c.charCodeAt(0) + 1);
+                        };
+                        let shuffledItems = shuffleArray(exam.dictionary.items);
+                        let count = {total: shuffledItems.length};
+                        count.multipleChoice = Math.round((exam.criteria.multiple_choice/100) * count.total);
+                        count.trueOrFalse = Math.round((exam.criteria.true_or_false/100) * count.total);
+                        count.identification = Math.round((exam.criteria.identification/100) * count.total);
+                        count.matchingType = count.total - (count.multipleChoice + count.trueOrFalse + count.identification);
+                        exam.perfectScore = count.total;
+                        exam.questions = {
+                            multipleChoice: [],
+                            trueOrFalse: [],
+                            matchingType: {questions: [], choices:[]},
+                            identification: []
+                        };
+
+                        //multiple choice
+                        for(let i = 0; i < count.multipleChoice; i++){
+                            let item = angular.copy(shuffledItems[i]);
+                            let choiceIndexes = [i];
+                            let question = {
+                                term: item.term,
+                                text: shuffleArray(item.meanings)[0],
+                                choices: [],
+                                answer: item.term,
+                                attempt: ''
+                            };
+                            choiceIndexes.push(randomNumber(0, (count.total - 1), choiceIndexes));
+                            choiceIndexes.push(randomNumber(0, (count.total - 1), choiceIndexes));
+                            choiceIndexes = shuffleArray(choiceIndexes);
+                            for(let j = 0; j < choiceIndexes.length; j++) question.choices.push(shuffledItems[choiceIndexes[j]].term);
+                            exam.questions.multipleChoice.push(question);
+                        }
+
+                        //true or false
+                        for(let i = count.multipleChoice; i < (count.multipleChoice + count.trueOrFalse); i++){
+                            let item = angular.copy(shuffledItems[i]);
+                            let question = {
+                                term: item.term,
+                                arg: shuffledItems[randomNumber(0, (count.total - 1), [i])].term,
+                                text: shuffleArray(item.meanings)[0],
+                                answer: false,
+                                attempt: ''
+                            };
+                            if(shuffleArray([true, false])[0]) {
+                                question.arg = item.term;
+                                question.answer = true;
+                            }
+                            exam.questions.trueOrFalse.push(question);
+                        }
+
+                        //matching type
+                        for(let c = 'A', i = (count.multipleChoice + count.trueOrFalse); i < (count.multipleChoice + count.trueOrFalse + count.matchingType); i++, c = incrementChar(c)){
+                            let item = angular.copy(shuffledItems[i]);
+                            let question = {
+                                term: item.term,
+                                text: shuffleArray(item.meanings)[0],
+                                answer: c,
+                                attempt: ''
+                            };
+                            let choice = {
+                                letter: c,
+                                term: item.term
+                            };
+                            exam.questions.matchingType.questions.push(question);
+                            exam.questions.matchingType.choices.push(choice);
+                        }
+                        exam.questions.matchingType.questions = shuffleArray(exam.questions.matchingType.questions);
+
+                        //identification
+                        for(let i = (count.multipleChoice + count.trueOrFalse + count.matchingType); i < count.total; i++){
+                            let item = angular.copy(shuffledItems[i]);
+                            let question = {
+                                term: item.term,
+                                text: shuffleArray(item.meanings)[0],
+                                answer: item.term,
+                                attempt: ''
+                            };
+                            exam.questions.identification.push(question);
+                        }
+                    };
+                    exam.checkAnswers = function () {
+                        exam.score = 0;
+                        for(let i = 0; i < exam.questions.multipleChoice.length; i++){
+                            let question = exam.questions.multipleChoice[i];
+                            question.correct = angular.equals(question.attempt, question.answer);
+                            if(question.correct) exam.score++;
+                        }
+                        for(let i = 0; i < exam.questions.trueOrFalse.length; i++){
+                            let question = exam.questions.trueOrFalse[i];
+                            question.correct = angular.equals(question.attempt, question.answer);
+                            if(question.correct) exam.score++;
+                        }
+                        for(let i = 0; i < exam.questions.matchingType.questions.length; i++){
+                            let question = exam.questions.matchingType.questions[i];
+                            question.correct = angular.equals(question.attempt, question.answer);
+                            if(question.correct) exam.score++;
+                        }
+                        for(let i = 0; i < exam.questions.identification.length; i++){
+                            let question = exam.questions.identification[i];
+                            question.correct = angular.equals(question.attempt.trim().toUpperCase(), question.answer.trim().toUpperCase());
+                            if(question.correct) exam.score++;
+                        }
+                        exam.showScore = true;
+                        $(window).scrollTop(0);
+                    };
+                    exam.submitExam = function () {
+                        Dialog.confirm('Submit Exam', 'Do you want to submit exam?', function (result) {
+                            $scope.$apply(function () {if(result) exam.checkAnswers();});
+                        });
                     };
                     exam.init = function () {
+                        $(window).scrollTop(0);
                         exam.index = $route.current.params.index;
                         exam.dictionary = appStorage.dictionary()[exam.index];
+                        exam.criteria = appStorage.settings().criteria;
+                        exam.showScore = false;
                         if(!exam.dictionary) $location.path('/');
                         else if(exam.dictionary.items.length < 5) Dialog.alert('Not Enough Dictionary Items', 'A Dictionary must have at least 5 dictionary items to generate an exam.', function () {
                             $scope.$apply(function () {
@@ -357,7 +485,7 @@
                     };
                     exam.init();
                 })
-                .factory('appStorage', function ($localStorage) {
+                .factory('appStorage', function ($localStorage, $sessionStorage) {
                     return {
                         dictionary: function (value) {
                             if(value)$localStorage.dictionaries = JSON.stringify(value);
@@ -534,8 +662,156 @@
         </script>
         <script type="text/ng-template" id="exam.html">
             <h4>{{exam.dictionary.name}} <small class="text-secondary">Exam Practice</small></h4>
-
             <hr />
+            <form ng-hide="exam.showScore" ng-submit="exam.submitExam();">
+                <div ng-show="exam.questions.trueOrFalse.length > 0" class="pt-3 pb-3">
+                    <h5>True or False</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.trueOrFalse track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. <b>{{question.arg}}</b> - {{question.text}}</p>
+                            <div class="container">
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="radio" ng-model="question.attempt" ng-value="true">
+                                        True
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="radio" ng-model="question.attempt" ng-value="false">
+                                        False
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.multipleChoice.length > 0" class="pt-3 pb-3">
+                    <h5>Multiple Choice</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.multipleChoice track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <div class="container">
+                                <div class="form-check" ng-repeat="choice in question.choices track by $index">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="radio" ng-model="question.attempt" value="{{choice}}">
+                                        {{choice}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.matchingType.questions.length > 0" class="pt-3 pb-3">
+                    <h5>Matching Type</h5>
+                    <div class="container">
+                        <div class="rounded border p-3 mb-3 mt-4">
+                            <span class="p-2" ng-repeat="choice in exam.questions.matchingType.choices track by $index"><b>{{choice.letter}}</b>. {{choice.term}}</span>
+                        </div>
+
+
+                        <div ng-repeat="question in exam.questions.matchingType.questions track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <div class="container">
+                                <select class="form-control" ng-model="question.attempt">
+                                    <option ng-repeat="choice in exam.questions.matchingType.choices track by $index" value="{{choice.letter}}">{{choice.letter}} - {{choice.term}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.identification.length > 0" class="pt-3 pb-3">
+                    <h5>Identification</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.identification track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <div class="container">
+                                <label>
+                                    <input type="text" ng-model="question.attempt" class="form-control" />
+                                </label>
+                            </div>
+                            <hr />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                <div class="pb-5"></div>
+            </form>
+            <div ng-show="exam.showScore">
+                <div class="text-right">
+                    <h1>
+                        <small>Score: </small>
+                        {{exam.score}}/{{exam.perfectScore}}
+                    </h1>
+                </div>
+
+                <div ng-show="exam.questions.trueOrFalse.length > 0" class="pt-3 pb-3">
+                    <h5>True or False</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.trueOrFalse track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. <b>{{question.arg}}</b> - {{question.text}}</p>
+                            <p>Correct Answer: <b>{{question.answer}}</b></p>
+                            <div class="alert alert-{{(question.correct)?'success':'danger'}}" role="alert">
+                                Your Answer: <b>{{question.attempt}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.multipleChoice.length > 0" class="pt-3 pb-3">
+                    <h5>Multiple Choice</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.multipleChoice track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <p>Correct Answer: <b>{{question.answer}}</b></p>
+                            <div class="alert alert-{{(question.correct)?'success':'danger'}}" role="alert">
+                                Your Answer: <b>{{question.attempt}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.matchingType.questions.length > 0" class="pt-3 pb-3">
+                    <h5>Matching Type</h5>
+                    <div class="container">
+                        <div class="rounded border p-3 mb-3 mt-4">
+                            <span class="p-2" ng-repeat="choice in exam.questions.matchingType.choices track by $index"><b>{{choice.letter}}</b>. {{choice.term}}</span>
+                        </div>
+                        <div ng-repeat="question in exam.questions.matchingType.questions track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <p>Correct Answer: <b>{{question.answer}}</b></p>
+                            <div class="alert alert-{{(question.correct)?'success':'danger'}}" role="alert">
+                                Your Answer: <b>{{question.attempt}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="exam.questions.identification.length > 0" class="pt-3 pb-3">
+                    <h5>Identification</h5>
+                    <div class="container">
+                        <div ng-repeat="question in exam.questions.identification track by $index" class="pb-3">
+                            <p>{{($index + 1)}}. {{question.text}}</p>
+                            <p>Correct Answer: <b>{{question.answer}}</b></p>
+                            <div class="alert alert-{{(question.correct)?'success':'danger'}}" role="alert">
+                                Your Answer: <b>{{question.attempt}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <a href="#/dictionaries" class="btn btn-outline-primary">Go back to dictionaries</a>
+                    <button type="submit" ng-click="exam.init();" class="btn btn-primary">Click here to retry</button>
+                </div>
+                <div class="pb-5"></div>
+            </div>
         </script>
 
         <script type="text/ng-template" id="template.html">
