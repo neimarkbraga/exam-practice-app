@@ -73,6 +73,11 @@
                             controller: 'settingsCtrl',
                             controllerAs: 'settings'
                         })
+                        .when('/exam/:index', {
+                            templateUrl: 'exam.html',
+                            controller: 'examCtrl',
+                            controllerAs: 'exam'
+                        })
                         .otherwise({redirectTo: '/'});
                 })
                 .controller('mainCtrl', function ($scope, $location) {
@@ -334,6 +339,24 @@
                         Dialog.alert('Changes Saved', 'Settings saved.');
                     };
                 })
+                .controller('examCtrl', function ($scope, $route, appStorage, $location) {
+                    let exam = this;
+                    exam.prepareQuestions = function () {
+                        alert('!');
+                    };
+                    exam.init = function () {
+                        exam.index = $route.current.params.index;
+                        exam.dictionary = appStorage.dictionary()[exam.index];
+                        if(!exam.dictionary) $location.path('/');
+                        else if(exam.dictionary.items.length < 5) Dialog.alert('Not Enough Dictionary Items', 'A Dictionary must have at least 5 dictionary items to generate an exam.', function () {
+                            $scope.$apply(function () {
+                                $location.path('/dictionaries');
+                            })
+                        });
+                        else exam.prepareQuestions();
+                    };
+                    exam.init();
+                })
                 .factory('appStorage', function ($localStorage) {
                     return {
                         dictionary: function (value) {
@@ -509,7 +532,11 @@
                 </table>
             </form>
         </script>
+        <script type="text/ng-template" id="exam.html">
+            <h4>{{exam.dictionary.name}} <small class="text-secondary">Exam Practice</small></h4>
 
+            <hr />
+        </script>
 
         <script type="text/ng-template" id="template.html">
             <h4>Template</h4>
