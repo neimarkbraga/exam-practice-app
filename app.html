@@ -1,158 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--manifest="exam-practice-app.appcache"-->
     <head>
-        <meta charset="UTF-8">
-        <title>Exam Practice App</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title>Exam Practice</title>
         <link rel="stylesheet" type="text/css" href="assets/bootstrap/dist/css/bootstrap.min.css" />
         <script type="application/javascript" src="assets/angular/angular.min.js"></script>
+        <script type="application/javascript" src="assets/angular-route/angular-route.min.js"></script>
         <script type="application/javascript" src="assets/ngstorage/ngStorage.min.js"></script>
+        <script type="application/javascript" src="assets/ng-file-upload/dist/ng-file-upload.min.js"></script>
         <script type="application/javascript" src="assets/jquery/dist/jquery.min.js"></script>
         <script type="application/javascript" src="assets/popper/dist/umd/popper.min.js"></script>
         <script type="application/javascript" src="assets/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="application/javascript" src="assets/bootstrap-dialogs-neimark/dist/bootstrap-dialogs-neimark.min.js"></script>
         <style>
             html, body {  min-height: 100vh;  }
-            main{  flex: 1;  }
+            main{flex: 1;}
+            button {cursor: pointer;}
+            button[disabled]{cursor: auto;}
         </style>
     </head>
-    <body class="d-flex flex-column" ng-app="ExamPracticeApp">
-        <header class="container pt-3 text-right">
-            <h1><a href="app.html">Exam Practice App</a></h1>
-            <p>By Neimark Junsay Braga</p>
-            <hr />
+    <body class="d-flex flex-column" ng-app="ExamPracticeApp" ng-controller="mainCtrl as main">
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+                <div class="container">
+                    <a class="navbar-brand" href="#/">{{main.name}}</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarText">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item {{(navLink.href == main.currentPath)? 'active':''}}" ng-repeat="navLink in main.navLinks track by $index"><a class="nav-link" href="#{{navLink.href}}">{{navLink.name}}</a></li>
+                        </ul>
+                        <span class="navbar-text">By {{main.author}}</span>
+                    </div>
+                </div>
+            </nav>
         </header>
         <main>
-            <div class="container" ng-controller="pageCtrl as page">
-                <div ng-show="page.currentPage == 'dashboard'" ng-controller="dashboardCtrl as dashboard">
-                    <h2>Dashboard</h2>
-                    <div class="list-group">
-                        <a href="#dictionaries" class="list-group-item list-group-item-action">Dictionary</a>
-                        <a href="#settings" ng-click="page.show('settings')" class="list-group-item list-group-item-action">Settings</a>
-                    </div>
-                </div>
-                <div ng-show="page.currentPage == 'dictionaries'" ng-controller="dictionaryCtrl as dictionaries">
-                    <h2>Dictionaries</h2>
-                    <div ng-show="dictionaries.library.length > 0" class="text-right pb-3">
-                        <a href="#" ng-click="dictionaries.exportData();" id="dictionaries-export-button" class="btn btn-sm btn-outline-primary">Export Data</a>
-                    </div>
-                    <p ng-hide="dictionaries.library.length > 0" class="text-center">You have no dictionary yet. Click "Add New Directory" or <button type="button" class="btn btn-sm btn-outline-dark">Import Data</button></p>
-                    <div ng-show="dictionaries.library.length > 0" id="dictionary-accordion" role="tablist">
-                        <div class="card" ng-repeat="dictionary in dictionaries.library track by $index">
-                            <div class="card-header" role="tab" id="dictionary-heading-{{$index}}">
-                                <h5 class="mb-0 d-flex">
-                                    <a data-toggle="collapse" href="#dictionary-collapse-{{$index}}" aria-controls="dictionary-collapse-{{$index}}">
-                                        {{dictionary.name}}
-                                    </a>
-                                    <div style="flex: 1;" class="text-right">
-                                        <button type="button" class="btn btn-success mb-2">Exam Practice</button>
-                                        <button type="button" ng-click="dictionaries.rename($index)" class="btn btn-info mb-2">Rename</button>
-                                        <button type="button" ng-click="dictionaries.remove($index)" class="btn btn-danger mb-2">Delete</button>
-                                    </div>
-                                </h5>
-                            </div>
-
-                            <div id="dictionary-collapse-{{$index}}" class="collapse" role="tabpanel" aria-labelledby="dictionary-heading-{{$index}}" data-parent="#dictionary-accordion">
-                                <div class="card-body">
-                                    <p ng-hide="dictionary.value.length > 0" class="text-center">There are no dictionary items for <b>{{dictionary.name}}</b> yet.</p>
-                                    <div ng-show="dictionary.value.length > 0">
-
-                                    </div>
-                                    <hr />
-
-                                    <!--
-                                    <div class="text-center">
-                                        <button ng-click="dictionaries.manageItems(index)" type="button" class="btn btn-sm btn-primary">Manage Dictionary Items for <b>{{dictionary.name}}</b></button> or
-                                        <button type="button" ng-click="" class="btn btn-secondary btn-sm">Import</button>
-                                    </div>
-                                    -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-3"></div>
-                    <div class="text-center">
-                        <button ng-click="dictionaries.add();" type="button" class="btn btn-primary">Add New Dictionary</button>
-                    </div>
-                </div>
-                <div ng-show="page.currentPage == 'settings'" ng-controller="settingsCtrl as settings">
-                    <h2>Settings</h2>
-
-                </div>
+            <div class="container">
+                <ng-view>Loading...</ng-view>
             </div>
         </main>
         <footer class="container pb-2 pt-2">
-            &copy; 2017 Exam Reviewer
+            &copy; {{main.year}} {{main.name}}
         </footer>
         <script>
-            var Dialog = new BootstrapDialog({
+            const Dialog = new BootstrapDialog({
                 buttonClass: 'btn-primary',
                 dialogSize: 'modal-lg'
             });
-            angular.module('ExamPracticeApp', ['ngStorage'])
-                .controller('pageCtrl', function ($scope, $window) {
-                    var page = this;
-                    $window.addEventListener('hashchange', function () {
-                        $scope.$apply(function () {
-                            page.currentPage = angular.copy(location.hash.replace('#',''));
+            angular.module('ExamPracticeApp', ['ngRoute', 'ngStorage', 'ngFileUpload'])
+                .config(function ($routeProvider, $locationProvider) {
+                    $locationProvider.hashPrefix('');
+                    $routeProvider
+                        .when('/', {
+                            templateUrl: 'home.html'
                         })
-                    });
-                    if(location.hash.trim() == '') location.hash = 'dashboard';
-                    else page.currentPage = angular.copy(location.hash.replace('#',''));
+                        .when('/dictionaries', {
+                            templateUrl: 'dictionaries.html',
+                            controller: 'dictionaryCtrl',
+                            controllerAs: 'dictionaries'
+                        })
+                        .when('/dictionary/:index', {
+                            templateUrl: 'dictionary.html',
+                            controller: 'manageDictionaryCtrl',
+                            controllerAs: 'manageDictionary'
+                        })
+                        .when('/settings', {
+                            templateUrl: 'settings.html',
+                            controller: 'settingsCtrl',
+                            controllerAs: 'settings'
+                        })
+                        .otherwise({redirectTo: '/'});
                 })
-                .controller('dashboardCtrl', function () {
-                    var dashboard = this;
+                .controller('mainCtrl', function ($scope, $location) {
+                    let main = this;
+                    main.name = 'Exam Practice';
+                    main.author = 'Neimark Junsay Braga';
+                    main.description = 'Exam Practice App is an application that would help students study for their exams. Basically, the students will encode their terminologies and meanings to dictionary section and the application will automatically will make an exam out of those encoded data.';
+                    main.year = '2017';
+                    main.navLinks = [
+                        {name: 'Home', href:'/'},
+                        {name: 'Dictionaries', href:'/dictionaries'},
+                        {name: 'Settings', href:'/settings'}
+                    ];
+                    $scope.$on('$routeChangeStart', function() {main.currentPath = $location.path();});
                 })
                 .controller('dictionaryCtrl', function ($scope, appStorage) {
-                    var dictionaries = this;
+                    let dictionaries = this;
                     dictionaries.library = appStorage.dictionary();
-                    dictionaries.add = function () {
+                    dictionaries.addNewDictionary = function () {
                         Dialog.prompt('New Dictionary', 'Enter the name of your new dictionary', function (newName) {
                             $scope.$apply(function () {
                                 if(newName != undefined){
                                     if(newName.trim() == '') Dialog.alert('Empty Name', 'Dictionary name cannot be whitespace or empty.');
+                                    else if(dictionaries.library.filter(dictionary => dictionary.name == newName).length > 0) Dialog.alert('Dictionary Name Already Exist', '<b>' + newName+ '</b> is already on the list. Try another name.');
                                     else {
-                                        var valid = true;
-                                        for(var i = 0; i < (dictionaries.library).length; i++)
-                                            if(dictionaries.library[i].name == newName)
-                                                valid = false;
-                                        if(!valid) Dialog.alert('Dictionary Name Exists', 'Dictionary <b>' + newName + '</b> is already on the list.');
-                                        else {
-                                            dictionaries.library.push({
-                                                name: newName,
-                                                value: []
-                                            });
-                                            dictionaries.library = appStorage.dictionary(dictionaries.library);
-                                        }
+                                        dictionaries.library.push({name: newName, items: []});
+                                        dictionaries.library = appStorage.dictionary(dictionaries.library);
                                     }
                                 }
                             });
                         },{label: 'Dictionary', placeholder: 'New Dictionary Name', required: false});
                     };
-                    dictionaries.rename = function (index) {
-                        var oldDictionary = dictionaries.library[index];
-                        Dialog.prompt('Rename Dictionary', 'Rename dictionary <b>' + oldDictionary.name + '</b> to?', function (newName) {
+                    dictionaries.renameDictionary = function (index) {
+                        let currentDictionary = dictionaries.library[index];
+                        Dialog.prompt('Rename Dictionary', 'Rename dictionary <b>' + currentDictionary.name + '</b> to?', function (newName) {
                             $scope.$apply(function () {
                                 if(newName != undefined){
-                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'Dictionary name cannot be whitespace or empty.');
+                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'New dictionary name cannot be whitespace or empty.');
+                                    else if(newName == currentDictionary.name) Dialog.alert('No Changes', 'New dictionary name cannot be the old name.');
+                                    else if(dictionaries.library.filter(dictionary => dictionary.name == newName).length > 0) Dialog.alert('Dictionary Name Already Exist', '<b>' + newName+ '</b> is already on the list. Try another name.');
                                     else {
-                                        var valid = true;
-                                        for(var i = 0; i < (dictionaries.library).length; i++)
-                                            if((dictionaries.library[i].name == newName) && (i != index))
-                                                valid = false;
-                                        if(!valid) Dialog.alert('Dictionary Name Exists', 'Cannot rename <b>' + oldDictionary.name + '</b> to <b>' + newName + '</b>. Dictionary <b>' + newName + '</b> is already on the list.');
-                                        else {
-                                            dictionaries.library[index].name = newName;
-                                            dictionaries.library = appStorage.dictionary(dictionaries.library);
-                                        }
+                                        dictionaries.library[index].name = newName;
+                                        dictionaries.library = appStorage.dictionary(dictionaries.library);
                                     }
                                 }
                             });
-                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', value: oldDictionary.name, required: false});
+
+
+                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', value: currentDictionary.name, required: false});
                     };
-                    dictionaries.remove = function (index) {
-                        var oldDictionary = dictionaries.library[index];
-                        Dialog.confirm('Delete Dictionary', 'Do you want to delete dictionary <b>' + oldDictionary.name + '</b>?', function (result) {
+                    dictionaries.deleteDictionary = function (index) {
+                        let currentDictionary = dictionaries.library[index];
+                        Dialog.confirm('Delete Dictionary', 'Do you want to delete dictionary <b>' + currentDictionary.name + '</b>?', function (result) {
                             $scope.$apply(function () {
                                 if(result){
                                     dictionaries.library.splice(index, 1);
@@ -161,16 +134,205 @@
                             });
                         });
                     };
-                    dictionaries.exportData = function () {
-                        var dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dictionaries.library));
-                        $('#dictionaries-export-button')
-                            .attr('href',dataString)
-                            .attr('download','exam-practice-export-' + (new Date().getTime()) + '.json');
+                    dictionaries.exportDictionaries = function () {
+                        $('.export-dictionary-data-button')
+                            .attr('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dictionaries.library)))
+                            .attr('download','exam-practice-export-[' + (new Date().toLocaleString()) + '].json');
+                    };
+                    dictionaries.importDictionaries = function (file) {
+                        let validateData = function (data, callback) {
+                            //variables
+                            let i = 0, j = 0, k = 0;
+
+                            //validate
+                            if(data.constructor != Array) {
+                                callback('Data: expected to be an array.');
+                                return false;
+                            } else if(data.length > 0) for(i = 0; i < data.length; i++){
+                                let dictionary = data[i];
+                                if(dictionary.constructor != Object){
+                                    callback('Dictionary: expected to be an object.');
+                                    return false;
+                                } else if(!dictionary.name){
+                                    callback('Dictionary name: not defined.');
+                                    return false;
+                                } else if(dictionary.name.constructor != String){
+                                    callback('Dictionary name: expected to be a string.');
+                                    return false;
+                                } else if(dictionary.name.trim() == ''){
+                                    callback('Dictionary name: cannot be whitespace or empty.');
+                                    return false;
+                                } else if(!dictionary.items){
+                                    callback('Dictionary items: not defined.');
+                                    return false;
+                                } else if(dictionary.items.constructor != Array){
+                                    callback('Dictionary items: expected to be an array.');
+                                    return false;
+                                } else if (dictionary.items.length > 0) for(j = 0; j < dictionary.items.length; j++){
+                                    let item = dictionary.items[j];
+                                    if(item.constructor != Object){
+                                        callback('Dictionary item: expected to be an object.');
+                                        return false;
+                                    }else if(!item.term){
+                                        callback('Dictionary item term: not defined.');
+                                        return false;
+                                    } else if(item.term.constructor != String){
+                                        callback('Dictionary item term: expected to be a string.');
+                                        return false;
+                                    } else if(item.term.trim() == ''){
+                                        callback('Dictionary item term: cannot be whitespace or empty.');
+                                        return false;
+                                    } else if(!item.meanings){
+                                        callback('Dictionary meanings: not defined.');
+                                        return false;
+                                    } else if(item.meanings.constructor != Array){
+                                        callback('Dictionary meanings: expected to be an array.');
+                                        return false;
+                                    } else if(item.meanings.length < 1){
+                                        callback('Dictionary meanings: expected at least 1 instance.');
+                                        return false;
+                                    } else for(k = 0; k < item.meanings.length; k++){
+                                        let meaning = item.meanings[k];
+                                        if(meaning.constructor != String){
+                                            callback('Dictionary meaning: expected to be a string.');
+                                            return false;
+                                        } else if(meaning.trim() == ''){
+                                            callback('Dictionary meaning: cannot be whitespace or empty.');
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+
+                            //ensure clean data
+                            let cleanData = [];
+                            for(i = 0; i < data.length; i++){
+                                let dictionary_ = data[i];
+                                let _dictionary = {
+                                    name: dictionary_.name,
+                                    items: []
+                                };
+                                for(j = 0; j < dictionary_.items.length; j++){
+                                    let item_ = dictionary_.items[j];
+                                    let _item = {
+                                        term: item_.term,
+                                        meanings: []
+                                    };
+                                    for(k = 0; k < item_.meanings.length; k++) _item.meanings.push(item_.meanings[k]);
+                                    _dictionary.items.push(_item);
+                                }
+                                cleanData.push(_dictionary);
+                            }
+
+                            //import valid
+                            callback(null, data);
+                        };
+                        if(file){
+                            let fileReader = new FileReader();
+                            fileReader.readAsText(file, "UTF-8")
+                            fileReader.addEventListener('load', function (e) {
+                                try {
+                                    validateData(JSON.parse(e.target.result), function (err, data) {
+                                        if(err) Dialog.alert('Import Error Occurred', err + ' Make sure you\'re importing the right file.');
+                                        else $scope.$apply(function () {
+                                            dictionaries.library = appStorage.dictionary(data);
+                                        });
+                                    });
+                                } catch (err) {
+                                    Dialog.alert('Import Error Occurred', 'Error: ' + err.message);
+                                }
+                            });
+                            fileReader.addEventListener('error', function () {
+                                Dialog.alert('Error Reading File', 'File reader cannot read the file. The file may be invalid or corrupted. Make sure you are importing the right file.');
+                            });
+                        }
                     };
                 })
+                .controller('manageDictionaryCtrl', function ($scope, $route, $location, appStorage) {
+                    let dictionary = this;
+                    dictionary.index = $route.current.params.index;
+                    dictionary.currentDictionary = appStorage.dictionary()[dictionary.index];
+                    if(!dictionary.currentDictionary) $location.path('#/');
+                    dictionary.simplifiedItems = function () {
+                        let simplified = [];
+                        for(let i = 0; i < dictionary.currentDictionary.items.length; i++){
+                            let item = dictionary.currentDictionary.items[i];
+                            for(let j = 0; j < item.meanings.length; j++){
+                                let meaning = item.meanings[j];
+                                simplified.push({
+                                    term: (j ==0)? item.term:'',
+                                    meaning: meaning
+                                });
+                            }
+                        }
+                        return simplified;
+                    };
+                    dictionary.convertSimplfiedToOriginal = function (simplified, callback) {
+                        let isWhitespaceOrNull = function (str) {
+                            if(!str) return true;
+                            else if(str.trim() == '') return true;
+                            return false;
+                        };
+                        let obj = [];
+                        let currentItem = {term: undefined, meanings: []};
+                        for(let i = 0; i < simplified.length; i++){
+                            let item = simplified[i];
+                            let term = (isWhitespaceOrNull(item.term))? currentItem.term:item.term;
+                            let meaning = (isWhitespaceOrNull(item.meaning))? undefined:item.meaning;
+                            if(!currentItem.term){
+                                if(!term || !meaning) {
+                                    callback('The first term and meaning cannot be empty.');
+                                    return false;
+                                } else {
+                                    currentItem.term = term;
+                                    currentItem.meanings.push(meaning);
+                                }
+                            } else if(!meaning) {
+                                callback('Meaning fields cannot be empty.');
+                                return false;
+                            } else if(term == currentItem.term){
+                                currentItem.meanings.push(meaning);
+                            } else {
+                                obj.push(angular.copy(currentItem));
+                                currentItem.term = term;
+                                currentItem.meanings = [meaning];
+                            }
+                        }
+                        if(currentItem.term) obj.push(angular.copy(currentItem));
+                        callback(null, obj);
+                    };
+                    dictionary.itemsChanged = function () {
+                        return !angular.equals(dictionary.items, dictionary.simplifiedItems());
+                    };
+                    dictionary.deleteItem = function (index) {
+                        dictionary.items.splice(index, 1);
+                    };
+                    dictionary.saveItems = function () {
+                        dictionary.convertSimplfiedToOriginal(dictionary.items, function (err, newData) {
+                            if(err) Dialog.alert('Error', err);
+                            else {
+                                let dictionaries = appStorage.dictionary();
+                                dictionaries[dictionary.index].items = newData;
+                                dictionary.currentDictionary = appStorage.dictionary(dictionaries)[dictionary.index];
+                                dictionary.items = dictionary.simplifiedItems();
+                            }
+                        });
+                    };
+                    dictionary.items = dictionary.simplifiedItems();
+                })
                 .controller('settingsCtrl', function (appStorage) {
-                    var settings = this;
+                    let settings = this;
                     settings.value = appStorage.settings();
+                    settings.criteriaTotal = function () {
+                        return (settings.value.criteria.multiple_choice + settings.value.criteria.true_or_false + settings.value.criteria.matching_type + settings.value.criteria.identification);
+                    };
+                    settings.changed = function () {
+                        return !angular.equals(settings.value, appStorage.settings());
+                    };
+                    settings.saveChanges = function () {
+                        settings.value = appStorage.settings(settings.value);
+                        Dialog.alert('Changes Saved', 'Settings saved.');
+                    };
                 })
                 .factory('appStorage', function ($localStorage) {
                     return {
@@ -181,12 +343,177 @@
                         },
                         settings: function (value) {
                             if(value)  $localStorage.settings = JSON.stringify(value);
-                            else if(!$localStorage.settings) $localStorage.settings = JSON.stringify([]);
+                            else if(!$localStorage.settings) $localStorage.settings = JSON.stringify({
+                                criteria: {
+                                    multiple_choice: 25,
+                                    true_or_false: 25,
+                                    matching_type: 25,
+                                    identification: 25
+                                }
+                            });
                             return JSON.parse($localStorage.settings);
                         }
                     };
                 });
+        </script>
+        <script type="text/ng-template" id="home.html">
+            <h1>{{main.name}}</h1>
+            <p>{{main.description}}</p>
+        </script>
+        <script type="text/ng-template" id="dictionaries.html">
+            <h4>Dictionaries</h4>
+            <hr />
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Dictionary Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="dictionary in dictionaries.library track by $index">
+                        <td>{{dictionary.name}}</td>
+                        <td class="text-right">
+                            <a href="#/exam/{{$index}}" class="btn btn-sm btn-outline-success mt-1 mb-1">Start Practice</a>
+                            <button type="button" ng-click="dictionaries.renameDictionary($index);" class="btn btn-sm btn-outline-info mt-1 mb-1">Rename</button>
+                            <a href="#/dictionary/{{$index}}" class="btn btn-sm btn-outline-dark mt-1 mb-1">Manage Items <span class="badge badge-dark">{{dictionary.items.length}}</span></a>
+                            <button type="button" ng-click="dictionaries.deleteDictionary($index);" class="btn btn-sm btn-outline-danger mt-1 mb-1">Delete</button>
+                        </td>
+                    </tr>
+                    <tr ng-hide="dictionaries.library.length > 0">
+                        <td colspan="2" class="text-center">You have no dictionary yet. Add new or import a json file.</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-right">
+                            <button type="button" ng-click="dictionaries.addNewDictionary();" class="btn btn-primary mt-1 mb-1">Add New Dictionary</button>
+                            <button ng-hide="dictionaries.library.length > 0"
+                                    type="button"
+                                    ngf-select="dictionaries.importDictionaries($file);"
+                                    data-ngf-multiple="false"
+                                    data-ngf-pattern="'.json'"
+                                    data-ngf-accept="'.json'"
+                                    class="btn btn-outline-dark mt-1 mb-1">Import Data</button>
+                            <a ng-show="dictionaries.library.length > 0" ng-click="dictionaries.exportDictionaries();" href="#" class="btn btn-dark mt-1 mb-1 export-dictionary-data-button">Export Data</a>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </script>
+        <script type="text/ng-template" id="settings.html">
+            <h4>Settings</h4>
+            <hr />
 
+            <div class="container">
+                <div class="pb-4"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Percentage</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Multiple Choice</td>
+                                <td>
+                                    <label>
+                                        <input type="number" ng-model="settings.value.criteria.multiple_choice" min="0" max="100" class="form-control" />
+                                    </label> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>True or False</td>
+                                <td>
+                                    <label>
+                                        <input type="number" ng-model="settings.value.criteria.true_or_false" min="0" max="100" class="form-control" />
+                                    </label> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Matching Type</td>
+                                <td>
+                                    <label>
+                                        <input type="number" ng-model="settings.value.criteria.matching_type" min="0" max="100" class="form-control" />
+                                    </label> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Identification</td>
+                                <td>
+                                    <label>
+                                        <input type="number" ng-model="settings.value.criteria.identification" min="0" max="100" class="form-control" />
+                                    </label> %
+                                </td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td>Total</td>
+                                <td>
+                                    <label>
+                                        <input class="form-control {{(settings.criteriaTotal() != 100)?'bg-danger text-white':''}}" type="number" ng-value="settings.criteriaTotal()" disabled="disabled" min="0" max="100" />
+                                    </label> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-right" colspan="2">
+                                    <button data-ng-disabled="!((settings.criteriaTotal() == 100) && settings.changed())" ng-click="settings.saveChanges();" type="button" class="btn btn-success">Save Changes</button>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script type="text/ng-template" id="dictionary.html">
+            <h4>{{manageDictionary.currentDictionary.name}} <small class="text-secondary">Dictionary</small></h4>
+            <hr />
+            <form ng-submit="manageDictionary.saveItems();">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th colspan="2">Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="item in manageDictionary.items track by $index">
+                        <td class="w-25">
+                            <label class="w-100">
+                                <input type="text" ng-required="$index == 0" ng-model="item.term" class="form-control" />
+                            </label>
+                        </td>
+                        <td class="w-75">
+                            <label class="w-100">
+                                <input type="text" ng-model="item.meaning" required="required" class="form-control" />
+                            </label>
+                        </td>
+                        <td>
+                            <button type="button" ng-click="manageDictionary.deleteItem($index);" tabindex="-1" class="btn btn-danger">&times;</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right">
+                                <button type="button" ng-click="manageDictionary.items.push({})" class="btn btn-primary">Add Row</button>
+                                <button type="submit" data-ng-disabled="!manageDictionary.itemsChanged();" class="btn btn-success">{{(manageDictionary.itemsChanged())? 'Save Changes':'Saved'}}</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </form>
+        </script>
+
+
+        <script type="text/ng-template" id="template.html">
+            <h4>Template</h4>
+            <hr />
         </script>
     </body>
 </html>
