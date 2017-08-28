@@ -66,6 +66,7 @@ angular.module('dictionaryController', [])
                     dictionaries[dictionary.index].items = newData;
                     dictionary.currentDictionary = appStorage.dictionary(dictionaries)[dictionary.index];
                     dictionary.items = dictionary.simplifiedItems();
+                    Dialog.alert('Items Saved', 'Dictionary <b>' + dictionary.currentDictionary.name + '</b> items has been updated successfully.');
                 }
             });
         };
