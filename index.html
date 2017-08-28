@@ -1,513 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
-<!--manifest="exam-practice-app.appcache"-->
+<html lang="en" manifest="cache-manifest.appcache">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>Exam Practice</title>
-        <link rel="stylesheet" type="text/css" href="assets/bootstrap/dist/css/bootstrap.min.css" />
+
+        <!--stylesheets-->
+        <link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="assets/exam-practice/css/exam-practice.css" />
+
+        <!--angular-->
         <script type="application/javascript" src="assets/angular/angular.min.js"></script>
         <script type="application/javascript" src="assets/angular-route/angular-route.min.js"></script>
         <script type="application/javascript" src="assets/ngstorage/ngStorage.min.js"></script>
-        <script type="application/javascript" src="assets/ng-file-upload/dist/ng-file-upload.min.js"></script>
-        <script type="application/javascript" src="assets/jquery/dist/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-        <!--<script type="application/javascript" src="assets/popper/dist/umd/popper.min.js"></script>-->
-        <script type="application/javascript" src="assets/bootstrap/dist/js/bootstrap.min.js"></script>
-        <script type="application/javascript" src="assets/bootstrap-dialogs-neimark/dist/bootstrap-dialogs-neimark.min.js"></script>
-        <style>
-            html, body {  min-height: 100vh;  }
-            main{flex: 1;}
-            button {cursor: pointer;}
-            button[disabled]{cursor: auto;}
-        </style>
+        <script type="application/javascript" src="assets/ng-file-upload/ng-file-upload.min.js"></script>
+
+        <!--bootstrap-->
+        <script type="application/javascript" src="assets/jquery/jquery.min.js"></script>
+        <script type="application/javascript" src="assets/popper/umd/popper.min.js"></script>
+        <script type="application/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script type="application/javascript" src="assets/bootstrap-dialogs-neimark/bootstrap-dialogs-neimark.min.js"></script>
+
+        <!--exam practice-->
+        <script type="application/javascript" src="assets/exam-practice/js/exam-practice.js"></script>
+
+        <!--ANGULAR COMPONENTS-->
+        <!--app [add modules here]-->
+        <script type="application/javascript" src="app/app.js"></script>
+
+        <!--app route-->
+        <script type="application/javascript" src="app/appRoutes.js"></script>
+
+        <!--app factories-->
+        <script type="application/javascript" src="app/appFactories.js"></script>
+
+        <!--app controllers-->
+        <script type="application/javascript" src="app/controllers/mainCtrl.js"></script>
+        <script type="application/javascript" src="app/controllers/dictionariesCtrl.js"></script>
+        <script type="application/javascript" src="app/controllers/dictionaryCtrl.js"></script>
+        <script type="application/javascript" src="app/controllers/settingsCtrl.js"></script>
+        <script type="application/javascript" src="app/controllers/examCtrl.js"></script>
     </head>
     <body class="d-flex flex-column" ng-app="ExamPracticeApp" ng-controller="mainCtrl as main">
+        <!--header-->
         <header>
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
                 <div class="container">
                     <a class="navbar-brand" href="#/">{{main.name}}</a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarText">
                         <ul class="navbar-nav mr-auto">
                             <li class="nav-item {{(navLink.href == main.currentPath)? 'active':''}}" ng-repeat="navLink in main.navLinks track by $index"><a class="nav-link" href="#{{navLink.href}}">{{navLink.name}}</a></li>
-                        </ul>
-                        <span class="navbar-text">By {{main.author}}</span>
+                        </ul><span class="navbar-text">By {{main.author}}</span>
                     </div>
                 </div>
             </nav>
         </header>
+
+        <!--main-->
         <main>
             <div class="container">
                 <ng-view>Loading...</ng-view>
             </div>
         </main>
+
+        <!--footer-->
         <footer class="container pb-2 pt-2">
             &copy; {{main.year}} {{main.name}}
         </footer>
-        <script>
-            const Dialog = new BootstrapDialog({
-                buttonClass: 'btn-primary',
-                dialogSize: 'modal-lg'
-            });
-            angular.module('ExamPracticeApp', ['ngRoute', 'ngStorage', 'ngFileUpload'])
-                .config(function ($routeProvider, $locationProvider) {
-                    $locationProvider.hashPrefix('');
-                    $routeProvider
-                        .when('/', {
-                            templateUrl: 'home.html'
-                        })
-                        .when('/dictionaries', {
-                            templateUrl: 'dictionaries.html',
-                            controller: 'dictionaryCtrl',
-                            controllerAs: 'dictionaries'
-                        })
-                        .when('/dictionary/:index', {
-                            templateUrl: 'dictionary.html',
-                            controller: 'manageDictionaryCtrl',
-                            controllerAs: 'manageDictionary'
-                        })
-                        .when('/settings', {
-                            templateUrl: 'settings.html',
-                            controller: 'settingsCtrl',
-                            controllerAs: 'settings'
-                        })
-                        .when('/exam/:index', {
-                            templateUrl: 'exam.html',
-                            controller: 'examCtrl',
-                            controllerAs: 'exam'
-                        })
-                        .otherwise({redirectTo: '/'});
-                })
-                .controller('mainCtrl', function ($scope, $location) {
-                    let main = this;
-                    main.name = 'Exam Practice';
-                    main.author = 'Neimark Junsay Braga';
-                    main.description = 'Exam Practice App is an application that would help students study for their exams. Basically, the students will encode their terminologies and meanings to dictionary section and the application will automatically will make an exam out of those encoded data.';
-                    main.year = '2017';
-                    main.navLinks = [
-                        {name: 'Home', href:'/'},
-                        {name: 'Dictionaries', href:'/dictionaries'},
-                        {name: 'Settings', href:'/settings'}
-                    ];
-                    $scope.$on('$routeChangeStart', function() {main.currentPath = $location.path();});
-                })
-                .controller('dictionaryCtrl', function ($scope, appStorage) {
-                    let dictionaries = this;
-                    dictionaries.library = appStorage.dictionary();
-                    dictionaries.addNewDictionary = function () {
-                        Dialog.prompt('New Dictionary', 'Enter the name of your new dictionary', function (newName) {
-                            $scope.$apply(function () {
-                                if(newName != undefined){
-                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'Dictionary name cannot be whitespace or empty.');
-                                    else if(dictionaries.library.filter(dictionary => dictionary.name == newName).length > 0) Dialog.alert('Dictionary Name Already Exist', '<b>' + newName+ '</b> is already on the list. Try another name.');
-                                    else {
-                                        dictionaries.library.push({name: newName, items: []});
-                                        dictionaries.library = appStorage.dictionary(dictionaries.library);
-                                    }
-                                }
-                            });
-                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', required: false});
-                    };
-                    dictionaries.renameDictionary = function (index) {
-                        let currentDictionary = dictionaries.library[index];
-                        Dialog.prompt('Rename Dictionary', 'Rename dictionary <b>' + currentDictionary.name + '</b> to?', function (newName) {
-                            $scope.$apply(function () {
-                                if(newName != undefined){
-                                    if(newName.trim() == '') Dialog.alert('Empty Name', 'New dictionary name cannot be whitespace or empty.');
-                                    else if(newName == currentDictionary.name) Dialog.alert('No Changes', 'New dictionary name cannot be the old name.');
-                                    else if(dictionaries.library.filter(dictionary => dictionary.name == newName).length > 0) Dialog.alert('Dictionary Name Already Exist', '<b>' + newName+ '</b> is already on the list. Try another name.');
-                                    else {
-                                        dictionaries.library[index].name = newName;
-                                        dictionaries.library = appStorage.dictionary(dictionaries.library);
-                                    }
-                                }
-                            });
 
-
-                        },{label: 'Dictionary', placeholder: 'New Dictionary Name', value: currentDictionary.name, required: false});
-                    };
-                    dictionaries.deleteDictionary = function (index) {
-                        let currentDictionary = dictionaries.library[index];
-                        Dialog.confirm('Delete Dictionary', 'Do you want to delete dictionary <b>' + currentDictionary.name + '</b>?', function (result) {
-                            $scope.$apply(function () {
-                                if(result){
-                                    dictionaries.library.splice(index, 1);
-                                    dictionaries.library = appStorage.dictionary(dictionaries.library);
-                                }
-                            });
-                        });
-                    };
-                    dictionaries.exportDictionaries = function () {
-                        $('.export-dictionary-data-button')
-                            .attr('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dictionaries.library)))
-                            .attr('download','exam-practice-export-[' + (new Date().toLocaleString()) + '].json');
-                    };
-                    dictionaries.importDictionaries = function (file) {
-                        let validateData = function (data, callback) {
-                            //variables
-                            let i = 0, j = 0, k = 0;
-
-                            //validate
-                            if(data.constructor != Array) {
-                                callback('Data: expected to be an array.');
-                                return false;
-                            } else if(data.length > 0) for(i = 0; i < data.length; i++){
-                                let dictionary = data[i];
-                                if(dictionary.constructor != Object){
-                                    callback('Dictionary: expected to be an object.');
-                                    return false;
-                                } else if(!dictionary.name){
-                                    callback('Dictionary name: not defined.');
-                                    return false;
-                                } else if(dictionary.name.constructor != String){
-                                    callback('Dictionary name: expected to be a string.');
-                                    return false;
-                                } else if(dictionary.name.trim() == ''){
-                                    callback('Dictionary name: cannot be whitespace or empty.');
-                                    return false;
-                                } else if(!dictionary.items){
-                                    callback('Dictionary items: not defined.');
-                                    return false;
-                                } else if(dictionary.items.constructor != Array){
-                                    callback('Dictionary items: expected to be an array.');
-                                    return false;
-                                } else if (dictionary.items.length > 0) for(j = 0; j < dictionary.items.length; j++){
-                                    let item = dictionary.items[j];
-                                    if(item.constructor != Object){
-                                        callback('Dictionary item: expected to be an object.');
-                                        return false;
-                                    }else if(!item.term){
-                                        callback('Dictionary item term: not defined.');
-                                        return false;
-                                    } else if(item.term.constructor != String){
-                                        callback('Dictionary item term: expected to be a string.');
-                                        return false;
-                                    } else if(item.term.trim() == ''){
-                                        callback('Dictionary item term: cannot be whitespace or empty.');
-                                        return false;
-                                    } else if(!item.meanings){
-                                        callback('Dictionary meanings: not defined.');
-                                        return false;
-                                    } else if(item.meanings.constructor != Array){
-                                        callback('Dictionary meanings: expected to be an array.');
-                                        return false;
-                                    } else if(item.meanings.length < 1){
-                                        callback('Dictionary meanings: expected at least 1 instance.');
-                                        return false;
-                                    } else for(k = 0; k < item.meanings.length; k++){
-                                        let meaning = item.meanings[k];
-                                        if(meaning.constructor != String){
-                                            callback('Dictionary meaning: expected to be a string.');
-                                            return false;
-                                        } else if(meaning.trim() == ''){
-                                            callback('Dictionary meaning: cannot be whitespace or empty.');
-                                            return false;
-                                        }
-                                    }
-                                }
-                            }
-
-                            //ensure clean data
-                            let cleanData = [];
-                            for(i = 0; i < data.length; i++){
-                                let dictionary_ = data[i];
-                                let _dictionary = {
-                                    name: dictionary_.name,
-                                    items: []
-                                };
-                                for(j = 0; j < dictionary_.items.length; j++){
-                                    let item_ = dictionary_.items[j];
-                                    let _item = {
-                                        term: item_.term,
-                                        meanings: []
-                                    };
-                                    for(k = 0; k < item_.meanings.length; k++) _item.meanings.push(item_.meanings[k]);
-                                    _dictionary.items.push(_item);
-                                }
-                                cleanData.push(_dictionary);
-                            }
-
-                            //import valid
-                            callback(null, data);
-                        };
-                        if(file){
-                            let fileReader = new FileReader();
-                            fileReader.readAsText(file, "UTF-8")
-                            fileReader.addEventListener('load', function (e) {
-                                try {
-                                    validateData(JSON.parse(e.target.result), function (err, data) {
-                                        if(err) Dialog.alert('Import Error Occurred', err + ' Make sure you\'re importing the right file.');
-                                        else $scope.$apply(function () {
-                                            dictionaries.library = appStorage.dictionary(data);
-                                        });
-                                    });
-                                } catch (err) {
-                                    Dialog.alert('Import Error Occurred', 'Error: ' + err.message);
-                                }
-                            });
-                            fileReader.addEventListener('error', function () {
-                                Dialog.alert('Error Reading File', 'File reader cannot read the file. The file may be invalid or corrupted. Make sure you are importing the right file.');
-                            });
-                        }
-                    };
-                })
-                .controller('manageDictionaryCtrl', function ($scope, $route, $location, appStorage) {
-                    let dictionary = this;
-                    dictionary.index = $route.current.params.index;
-                    dictionary.currentDictionary = appStorage.dictionary()[dictionary.index];
-                    if(!dictionary.currentDictionary) $location.path('#/');
-                    dictionary.simplifiedItems = function () {
-                        let simplified = [];
-                        for(let i = 0; i < dictionary.currentDictionary.items.length; i++){
-                            let item = dictionary.currentDictionary.items[i];
-                            for(let j = 0; j < item.meanings.length; j++){
-                                let meaning = item.meanings[j];
-                                simplified.push({
-                                    term: (j ==0)? item.term:'',
-                                    meaning: meaning
-                                });
-                            }
-                        }
-                        return simplified;
-                    };
-                    dictionary.convertSimplfiedToOriginal = function (simplified, callback) {
-                        let isWhitespaceOrNull = function (str) {
-                            if(!str) return true;
-                            else if(str.trim() == '') return true;
-                            return false;
-                        };
-                        let obj = [];
-                        let currentItem = {term: undefined, meanings: []};
-                        for(let i = 0; i < simplified.length; i++){
-                            let item = simplified[i];
-                            let term = (isWhitespaceOrNull(item.term))? currentItem.term:item.term;
-                            let meaning = (isWhitespaceOrNull(item.meaning))? undefined:item.meaning;
-                            if(!currentItem.term){
-                                if(!term || !meaning) {
-                                    callback('The first term and meaning cannot be empty.');
-                                    return false;
-                                } else {
-                                    currentItem.term = term;
-                                    currentItem.meanings.push(meaning);
-                                }
-                            } else if(!meaning) {
-                                callback('Meaning fields cannot be empty.');
-                                return false;
-                            } else if(term == currentItem.term){
-                                currentItem.meanings.push(meaning);
-                            } else {
-                                obj.push(angular.copy(currentItem));
-                                currentItem.term = term;
-                                currentItem.meanings = [meaning];
-                            }
-                        }
-                        if(currentItem.term) obj.push(angular.copy(currentItem));
-                        callback(null, obj);
-                    };
-                    dictionary.itemsChanged = function () {
-                        return !angular.equals(dictionary.items, dictionary.simplifiedItems());
-                    };
-                    dictionary.deleteItem = function (index) {
-                        dictionary.items.splice(index, 1);
-                    };
-                    dictionary.saveItems = function () {
-                        dictionary.convertSimplfiedToOriginal(dictionary.items, function (err, newData) {
-                            if(err) Dialog.alert('Error', err);
-                            else {
-                                let dictionaries = appStorage.dictionary();
-                                dictionaries[dictionary.index].items = newData;
-                                dictionary.currentDictionary = appStorage.dictionary(dictionaries)[dictionary.index];
-                                dictionary.items = dictionary.simplifiedItems();
-                            }
-                        });
-                    };
-                    dictionary.items = dictionary.simplifiedItems();
-                })
-                .controller('settingsCtrl', function (appStorage) {
-                    let settings = this;
-                    settings.value = appStorage.settings();
-                    settings.criteriaTotal = function () {
-                        return (settings.value.criteria.multiple_choice + settings.value.criteria.true_or_false + settings.value.criteria.matching_type + settings.value.criteria.identification);
-                    };
-                    settings.changed = function () {
-                        return !angular.equals(settings.value, appStorage.settings());
-                    };
-                    settings.saveChanges = function () {
-                        settings.value = appStorage.settings(settings.value);
-                        Dialog.alert('Changes Saved', 'Settings saved.');
-                    };
-                })
-                .controller('examCtrl', function ($scope, $route, appStorage, $location) {
-                    let exam = this;
-                    exam.prepareQuestions = function () {
-                        let shuffleArray = function(array) {
-                            let m = array.length, t, i;
-                            while (m) {
-                                i = Math.floor(Math.random() * m--);
-                                t = array[m];
-                                array[m] = array[i];
-                                array[i] = t;
-                            }
-                            return array;
-                        };
-                        let randomNumber = function (max, min, exception) {
-                            if(!exception) exception = [];
-                            let num = Math.floor(Math.random() * (max - min + 1)) + min;
-                            return (exception.indexOf(num) > -1)? randomNumber(min, max, exception) : num;
-                        };
-                        let incrementChar = function (c) {
-                            return String.fromCharCode(c.charCodeAt(0) + 1);
-                        };
-                        let shuffledItems = shuffleArray(exam.dictionary.items);
-                        let count = {total: shuffledItems.length};
-                        count.multipleChoice = Math.round((exam.criteria.multiple_choice/100) * count.total);
-                        count.trueOrFalse = Math.round((exam.criteria.true_or_false/100) * count.total);
-                        count.identification = Math.round((exam.criteria.identification/100) * count.total);
-                        count.matchingType = count.total - (count.multipleChoice + count.trueOrFalse + count.identification);
-                        exam.perfectScore = count.total;
-                        exam.questions = {
-                            multipleChoice: [],
-                            trueOrFalse: [],
-                            matchingType: {questions: [], choices:[]},
-                            identification: []
-                        };
-
-                        //multiple choice
-                        for(let i = 0; i < count.multipleChoice; i++){
-                            let item = angular.copy(shuffledItems[i]);
-                            let choiceIndexes = [i];
-                            let question = {
-                                term: item.term,
-                                text: shuffleArray(item.meanings)[0],
-                                choices: [],
-                                answer: item.term,
-                                attempt: ''
-                            };
-                            choiceIndexes.push(randomNumber(0, (count.total - 1), choiceIndexes));
-                            choiceIndexes.push(randomNumber(0, (count.total - 1), choiceIndexes));
-                            choiceIndexes = shuffleArray(choiceIndexes);
-                            for(let j = 0; j < choiceIndexes.length; j++) question.choices.push(shuffledItems[choiceIndexes[j]].term);
-                            exam.questions.multipleChoice.push(question);
-                        }
-
-                        //true or false
-                        for(let i = count.multipleChoice; i < (count.multipleChoice + count.trueOrFalse); i++){
-                            let item = angular.copy(shuffledItems[i]);
-                            let question = {
-                                term: item.term,
-                                arg: shuffledItems[randomNumber(0, (count.total - 1), [i])].term,
-                                text: shuffleArray(item.meanings)[0],
-                                answer: false,
-                                attempt: ''
-                            };
-                            if(shuffleArray([true, false])[0]) {
-                                question.arg = item.term;
-                                question.answer = true;
-                            }
-                            exam.questions.trueOrFalse.push(question);
-                        }
-
-                        //matching type
-                        for(let c = 'A', i = (count.multipleChoice + count.trueOrFalse); i < (count.multipleChoice + count.trueOrFalse + count.matchingType); i++, c = incrementChar(c)){
-                            let item = angular.copy(shuffledItems[i]);
-                            let question = {
-                                term: item.term,
-                                text: shuffleArray(item.meanings)[0],
-                                answer: c,
-                                attempt: ''
-                            };
-                            let choice = {
-                                letter: c,
-                                term: item.term
-                            };
-                            exam.questions.matchingType.questions.push(question);
-                            exam.questions.matchingType.choices.push(choice);
-                        }
-                        exam.questions.matchingType.questions = shuffleArray(exam.questions.matchingType.questions);
-
-                        //identification
-                        for(let i = (count.multipleChoice + count.trueOrFalse + count.matchingType); i < count.total; i++){
-                            let item = angular.copy(shuffledItems[i]);
-                            let question = {
-                                term: item.term,
-                                text: shuffleArray(item.meanings)[0],
-                                answer: item.term,
-                                attempt: ''
-                            };
-                            exam.questions.identification.push(question);
-                        }
-                    };
-                    exam.checkAnswers = function () {
-                        exam.score = 0;
-                        for(let i = 0; i < exam.questions.multipleChoice.length; i++){
-                            let question = exam.questions.multipleChoice[i];
-                            question.correct = angular.equals(question.attempt, question.answer);
-                            if(question.correct) exam.score++;
-                        }
-                        for(let i = 0; i < exam.questions.trueOrFalse.length; i++){
-                            let question = exam.questions.trueOrFalse[i];
-                            question.correct = angular.equals(question.attempt, question.answer);
-                            if(question.correct) exam.score++;
-                        }
-                        for(let i = 0; i < exam.questions.matchingType.questions.length; i++){
-                            let question = exam.questions.matchingType.questions[i];
-                            question.correct = angular.equals(question.attempt, question.answer);
-                            if(question.correct) exam.score++;
-                        }
-                        for(let i = 0; i < exam.questions.identification.length; i++){
-                            let question = exam.questions.identification[i];
-                            question.correct = angular.equals(question.attempt.trim().toUpperCase(), question.answer.trim().toUpperCase());
-                            if(question.correct) exam.score++;
-                        }
-                        exam.showScore = true;
-                        $(window).scrollTop(0);
-                    };
-                    exam.submitExam = function () {
-                        Dialog.confirm('Submit Exam', 'Do you want to submit exam?', function (result) {
-                            $scope.$apply(function () {if(result) exam.checkAnswers();});
-                        });
-                    };
-                    exam.init = function () {
-                        $(window).scrollTop(0);
-                        exam.index = $route.current.params.index;
-                        exam.dictionary = appStorage.dictionary()[exam.index];
-                        exam.criteria = appStorage.settings().criteria;
-                        exam.showScore = false;
-                        if(!exam.dictionary) $location.path('/');
-                        else if(exam.dictionary.items.length < 5) Dialog.alert('Not Enough Dictionary Items', 'A Dictionary must have at least 5 dictionary items to generate an exam.', function () {
-                            $scope.$apply(function () {
-                                $location.path('/dictionaries');
-                            })
-                        });
-                        else exam.prepareQuestions();
-                    };
-                    exam.init();
-                })
-                .factory('appStorage', function ($localStorage, $sessionStorage) {
-                    return {
-                        dictionary: function (value) {
-                            if(value)$localStorage.dictionaries = JSON.stringify(value);
-                            else if(!$localStorage.dictionaries) $localStorage.dictionaries = JSON.stringify([]);
-                            return JSON.parse($localStorage.dictionaries);
-                        },
-                        settings: function (value) {
-                            if(value)  $localStorage.settings = JSON.stringify(value);
-                            else if(!$localStorage.settings) $localStorage.settings = JSON.stringify({
-                                criteria: {
-                                    multiple_choice: 25,
-                                    true_or_false: 25,
-                                    matching_type: 25,
-                                    identification: 25
-                                }
-                            });
-                            return JSON.parse($localStorage.settings);
-                        }
-                    };
-                });
-        </script>
+        <!--templates-->
         <script type="text/ng-template" id="home.html">
             <h1>{{main.name}}</h1>
             <p>{{main.description}}</p>
@@ -623,9 +185,9 @@
             </div>
         </script>
         <script type="text/ng-template" id="dictionary.html">
-            <h4>{{manageDictionary.currentDictionary.name}} <small class="text-secondary">Dictionary</small></h4>
+            <h4>{{dictionary.currentDictionary.name}} <small class="text-secondary">Dictionary</small></h4>
             <hr />
-            <form ng-submit="manageDictionary.saveItems();">
+            <form ng-submit="dictionary.saveItems();">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -634,7 +196,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in manageDictionary.items track by $index">
+                    <tr ng-repeat="item in dictionary.items track by $index">
                         <td class="w-25">
                             <label class="w-100">
                                 <input type="text" ng-required="$index == 0" ng-model="item.term" class="form-control" />
@@ -646,15 +208,15 @@
                             </label>
                         </td>
                         <td>
-                            <button type="button" ng-click="manageDictionary.deleteItem($index);" tabindex="-1" class="btn btn-danger">&times;</button>
+                            <button type="button" ng-click="dictionary.deleteItem($index);" tabindex="-1" class="btn btn-danger">&times;</button>
                         </td>
                     </tr>
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3" class="text-right">
-                                <button type="button" ng-click="manageDictionary.items.push({})" class="btn btn-primary">Add Row</button>
-                                <button type="submit" data-ng-disabled="!manageDictionary.itemsChanged();" class="btn btn-success">{{(manageDictionary.itemsChanged())? 'Save Changes':'Saved'}}</button>
+                                <button type="button" ng-click="dictionary.items.push({})" class="btn btn-primary">Add Row</button>
+                                <button type="submit" data-ng-disabled="!dictionary.itemsChanged();" class="btn btn-success">{{(dictionary.itemsChanged())? 'Save Changes':'Saved'}}</button>
                             </td>
                         </tr>
                     </tfoot>
@@ -814,10 +376,9 @@
                 <div class="pb-5"></div>
             </div>
         </script>
-
-        <script type="text/ng-template" id="template.html">
+        <!--<script type="text/ng-template" id="template.html">
             <h4>Template</h4>
             <hr />
-        </script>
+        </script>-->
     </body>
 </html>

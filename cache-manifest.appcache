@@ -1,0 +1,37 @@
+CACHE MANIFEST
+
+# Main HTML
+index.html
+
+# Angular JS Dependencies
+assets/angular/angular.min.js
+assets/angular-route/angular-route.min.js
+assets/ngstorage/ngStorage.min.js
+assets/ng-file-upload/ng-file-upload.min.js
+
+# Bootstrap Dependencies
+assets/bootstrap/css/bootstrap.min.css
+assets/jquery/jquery.min.js
+assets/popper/umd/popper.min.js
+assets/bootstrap/js/bootstrap.min.js
+assets/bootstrap-dialogs-neimark/bootstrap-dialogs-neimark.min.js
+
+# App Dependencies
+assets/exam-practice/css/exam-practice.css
+assets/exam-practice/js/exam-practice.js
+
+# AngularJS App
+app/app.js
+
+# AngularJS App Routes
+app/appRoutes.js
+
+# AngularJS App Factories
+app/appFactories.js
+
+# AngularJS App Controllers
+app/controllers/mainCtrl.js
+app/controllers/dictionariesCtrl.js
+app/controllers/dictionaryCtrl.js
+app/controllers/settingsCtrl.js
+app/controllers/examCtrl.js

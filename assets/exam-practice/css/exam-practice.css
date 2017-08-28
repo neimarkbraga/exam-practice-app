@@ -1,0 +1,4 @@
+html, body {  min-height: 100vh;  }
+main{flex: 1;}
+button {cursor: pointer;}
+button[disabled]{cursor: auto;}
