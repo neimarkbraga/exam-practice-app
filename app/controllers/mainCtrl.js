@@ -9,7 +9,8 @@ angular.module('mainController', [])
         main.navLinks = [
             {name: 'Home', href:'/'},
             {name: 'Dictionaries', href:'/dictionaries'},
-            {name: 'Settings', href:'/settings'}
+            {name: 'Settings', href:'/settings'},
+            {name: 'Help', href:'/help'}
         ];
         $scope.$on('$routeChangeStart', function() {main.currentPath = $location.path();});
     });

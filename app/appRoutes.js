@@ -25,5 +25,8 @@ angular.module('appRoute', ['ngRoute'])
                 controller: 'examCtrl',
                 controllerAs: 'exam'
             })
+            .when('/help', {
+                templateUrl: 'help.html'
+            })
             .otherwise({redirectTo: '/'});
     });

@@ -212,21 +212,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in dictionary.items track by $index">
-                        <td class="w-25">
-                            <label class="w-100">
-                                <input type="text" ng-required="$index == 0" ng-model="item.term" class="form-control" />
-                            </label>
-                        </td>
-                        <td class="w-75">
-                            <label class="w-100">
-                                <input type="text" ng-model="item.meaning" required="required" class="form-control" />
-                            </label>
-                        </td>
-                        <td>
-                            <button type="button" ng-click="dictionary.deleteItem($index);" tabindex="-1" class="btn btn-danger">&times;</button>
-                        </td>
-                    </tr>
+                        <tr ng-repeat="item in dictionary.items track by $index">
+                            <td class="w-25">
+                                <label class="w-100">
+                                    <input type="text" ng-required="$index == 0" ng-model="item.term" class="form-control" />
+                                </label>
+                            </td>
+                            <td class="w-75">
+                                <label class="w-100">
+                                    <input type="text" ng-model="item.meaning" required="required" class="form-control" />
+                                </label>
+                            </td>
+                            <td>
+                                <button type="button" ng-click="dictionary.deleteItem($index);" tabindex="-1" class="btn btn-danger">&times;</button>
+                            </td>
+                        </tr>
+                        <tr ng-show="dictionary.items.length < 1">
+                            <td colspan="3" class="text-center">Click "Add Row" to add a new term</td>
+                        </tr>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -390,6 +393,70 @@
                     <button type="submit" ng-click="exam.init();" class="btn btn-primary mb-1">Click here to retry</button>
                 </div>
                 <div class="pb-5"></div>
+            </div>
+        </script>
+        <script type="text/ng-template" id="help.html">
+            <h4>Help</h4>
+            <hr />
+
+            <div class="container">
+                <h4>How To Use?</h4>
+                <hr />
+
+                <div class="container pb-5">
+                    <h5>Creating a Dictionary</h5>
+                    <div class="container">
+                        <p>A dictionary contains list of terms or words with their meanings.</p>
+                        <p>One dictionary refers to one reviewer or subject</p>
+                        <p>For example, if you want to make a reviewer for your <b>"Computer"</b> subject then you can create a new dictionary and name it to <b>"Computer"</b> or whatever you want as long as you can recognize it.</p>
+                        <p>To make a new dictionary, go to <b>Dictionaries</b> -&gt; click <b>Add New Dictionary</b> and enter your desired name.</p>
+                    </div>
+                </div>
+
+                <div class="container pb-5">
+                    <h5>Managing terms</h5>
+                    <div class="container">
+                        <p>After adding a dictionary, you may start adding terms for in dictionary.</p>
+                        <p>To add new terms or items in your dictionary, go to <b>Dictionaries</b> -&gt; click <b>Manage Items</b> on your dictionary -&gt; click <b>Add Row</b> -> then enter a term and it's meaning -> click <b>Save Changes</b> to save.</p>
+                        <p>Sometimes a term or word has alternative meanings. For example, you have a term <b>"Keyboard"</b> and it has alternative meanings:</p>
+                        <ul>
+                            <li>A panel of keys that operate a computer or typewriter.</li>
+                            <li>A piece of computer hardware used to input text, characters, and other commands into a computer or similar device.</li>
+                        </ul>
+                        <p>The question is, how do you add a term that has alternative meanings?</p>
+                        <p>To add a term or word with alternative meanings is: simply add rows for each meanings. For example <b>Keyboard</b> has two alternative meanings then you must add two(2) rows. At first added row, enter the term <b>"Keyboard"</b> and it's first alternative meaning. At second added row, leave the term to blank and enter the 2nd alternative meaning. It will look like: </p>
+                        <img src="images/help/example-1.jpg" class="w-100" alt="example image" />
+                    </div>
+                </div>
+
+                <div class="container pb-5">
+                    <h5>Setting Criteria</h5>
+                    <div class="container">
+                        <p>If you want to customize the to be generated exam for your dictionary, then you can set it in settings.</p>
+                        <p>For example: if you don't want identification then set the "identification" to 0%.</p>
+                        <p>Another example: if you want majority of the items of to be generated exam is "true or false" then you can set "true or false" to 80% or depends on your preference.</p>
+                        <p>To set criteria, go to <b>Settings</b>.</p>
+                    </div>
+                </div>
+
+                <div class="container pb-5">
+                    <h5>Start Practicing</h5>
+                    <div class="container">
+                        <p>When everything is set, you may start generating exams so you can practice answering questions.</p>
+                        <p>To start practice or generate and exam, go to <b>Dictionaries</b> -&gt; click <b>Start Practice</b> on your dictionary</p>
+                    </div>
+                </div>
+
+                <div class="container pb-5">
+                    <h5>Export/Import Data</h5>
+                    <div class="container">
+                        <p>You can export your dictionaries so you can import it on your other devices.</p>
+                        <p>For example: If you encoded all of your dictionaries and terms on your computer and you want to transfer all of your dictionaries to your smartphone, then you can export all of your dictionaries.</p>
+                        <p>To export dictionaries, go to <b>Dictionaries</b> -&gt; click <b>Export Data</b> -&gt; save the .json file. (<b>Export Data</b> Button will not appear if you don't have at least one dictionary).</p>
+                        <p>To import data, go to <b>Dictionaries</b> -&gt; click <b>Import Data</b> -&gt; select the exported file. (<b>Import Data</b> button doesn't appear if you have existing dictionaries, you may want to delete the existing dictionaries, before you can import).</p>
+                    </div>
+                </div>
+
             </div>
         </script>
         <!--<script type="text/ng-template" id="template.html">
