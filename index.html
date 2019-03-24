@@ -50,6 +50,7 @@
         <script type="application/javascript" src="app/controllers/mainCtrl.js"></script>
         <script type="application/javascript" src="app/controllers/dictionariesCtrl.js"></script>
         <script type="application/javascript" src="app/controllers/dictionaryCtrl.js"></script>
+        <script type="application/javascript" src="app/controllers/dictionaryFlashCardCtrl.js"></script>
         <script type="application/javascript" src="app/controllers/settingsCtrl.js"></script>
         <script type="application/javascript" src="app/controllers/examCtrl.js"></script>
     </head>
@@ -105,9 +106,40 @@
                         <td>{{dictionary.name}}</td>
                         <td class="text-right">
                             <a href="#/exam/{{$index}}" class="btn btn-sm btn-outline-success mt-1 mb-1">Start Practice</a>
-                            <button type="button" ng-click="dictionaries.renameDictionary($index);" class="btn btn-sm btn-outline-info mt-1 mb-1">Rename</button>
                             <a href="#/dictionary/{{$index}}" class="btn btn-sm btn-outline-dark mt-1 mb-1">Manage Items <span class="badge badge-dark">{{dictionary.items.length}}</span></a>
-                            <button type="button" ng-click="dictionaries.deleteDictionary($index);" class="btn btn-sm btn-outline-danger mt-1 mb-1">Delete</button>
+                            <div class="d-inline-block dropdown">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                        data-toggle="dropdown">
+                                    Option
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button type="button"
+                                                data-ng-click="dictionaries.renameDictionary($index);"
+                                                class="dropdown-item">Rename</button>
+                                    </li>
+                                    <li data-ng-if="dictionary.items.length">
+                                        <a href="#/dictionary/{{$index}}/review"
+                                           class="dropdown-item">
+                                            Review Items
+                                        </a>
+                                    </li>
+                                    <li data-ng-if="dictionary.items.length >= 3">
+                                        <a href="#/dictionary/{{$index}}/flash-card"
+                                           class="dropdown-item">
+                                            Run Flash Card
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li>
+                                        <button type="button"
+                                                data-ng-click="dictionaries.deleteDictionary($index);"
+                                                class="dropdown-item">Delete</button>
+                                    </li>
+                                </ul>
+                            </div>
+
                         </td>
                     </tr>
                     <tr ng-hide="dictionaries.library.length > 0">
@@ -241,6 +273,85 @@
                     </tfoot>
                 </table>
             </form>
+        </script>
+        <script type="text/ng-template" id="dictionary-review.html">
+            <h4>{{dictionary.currentDictionary.name}} <small class="text-secondary">Dictionary Review</small></h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Term</th>
+                        <th>Meanings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-ng-repeat="item in dictionary.currentDictionary.items track by $index">
+                        <th>{{ item.term }}</th>
+                        <td>
+                            <div data-ng-repeat="meaning in item.meanings track by $index">&bull; {{ meaning }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </script>
+        <script type="text/ng-template" id="dictionary-flash-card.html">
+            <h4>{{flashcard.currentDictionary.name}} <small class="text-secondary">Dictionary Flash Card</small></h4>
+            <hr />
+            <div class="pb-3 px-2 {{ flashcard.current_card.reveal_answer? 'bg-info' : 'bg-dark' }} text-white rounded" style="position: relative;">
+                <div class="pb-1 pt-1 small text-center">
+                    <span>{{ flashcard.current_card.number | number }}</span>
+                    <span> of </span>
+                    <span>{{ flashcard.cards.length | number }}</span>
+                </div>
+                <div class="d-flex align-items-center text-center"
+                     style="min-height: 40vh">
+                    <div data-ng-if="!flashcard.current_card.reveal_answer"
+                         class="w-100">
+                        <div>{{ flashcard.current_card.question }}</div>
+                    </div>
+                    <div data-ng-if="flashcard.current_card.reveal_answer"
+                         class="w-100">
+                        <h2>{{ flashcard.current_card.data.term }}</h2>
+                        <div class="{{ $index? 'pt-2' : '' }}"
+                             data-ng-repeat="meaning in flashcard.current_card.data.meanings track by $index">
+                            {{ meaning }}
+                        </div>
+                    </div>
+                </div>
+                <div class="w-100 h-100"
+                     data-ng-click="flashcard.tap()"
+                     style="position: absolute; left: 0; top: 0;"></div>
+            </div>
+            <div class="d-flex py-4">
+                <div>
+                    <button type="button"
+                            data-ng-click="flashcard.prev()"
+                            class="btn btn-outline-dark">
+                        Prev
+                    </button>
+                </div>
+                <div class="container-fluid">
+                    <button type="button"
+                            data-ng-if="!flashcard.current_card.reveal_answer"
+                            data-ng-click="flashcard.current_card.reveal_answer = true;"
+                            class="btn btn-primary w-100">
+                        Reveal Answer
+                    </button>
+                    <button type="button"
+                            data-ng-if="flashcard.current_card.reveal_answer"
+                            data-ng-click="flashcard.next()"
+                            class="btn btn-outline-primary w-100">
+                        Next Card
+                    </button>
+                </div>
+                <div>
+                    <button type="button"
+                            data-ng-click="flashcard.next()"
+                            class="btn btn-outline-dark">
+                        Next
+                    </button>
+                </div>
+            </div>
+
         </script>
         <script type="text/ng-template" id="exam.html">
             <h4>{{exam.dictionary.name}} <small class="text-secondary">Exam Practice</small></h4>

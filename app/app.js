@@ -4,6 +4,7 @@ angular.module('ExamPracticeApp', [
     'mainController',
     'dictionariesController',
     'dictionaryController',
+    'dictionaryFlashCardController',
     'settingsController',
     'examController'
 ]);

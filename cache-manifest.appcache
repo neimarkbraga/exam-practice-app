@@ -36,8 +36,10 @@ app/appFactories.js
 app/controllers/mainCtrl.js
 app/controllers/dictionariesCtrl.js
 app/controllers/dictionaryCtrl.js
+app/controllers/dictionaryFlashCardCtrl.js
 app/controllers/settingsCtrl.js
 app/controllers/examCtrl.js
+
 
 # Images
 images/logo.png

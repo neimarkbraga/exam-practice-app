@@ -15,6 +15,16 @@ angular.module('appRoute', ['ngRoute'])
                 controller: 'dictionaryCtrl',
                 controllerAs: 'dictionary'
             })
+            .when('/dictionary/:index/review', {
+                templateUrl: 'dictionary-review.html',
+                controller: 'dictionaryCtrl',
+                controllerAs: 'dictionary'
+            })
+            .when('/dictionary/:index/flash-card', {
+                templateUrl: 'dictionary-flash-card.html',
+                controller: 'dictionaryFlashCardCtrl',
+                controllerAs: 'flashcard'
+            })
             .when('/settings', {
                 templateUrl: 'settings.html',
                 controller: 'settingsCtrl',
